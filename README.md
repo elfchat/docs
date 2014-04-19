@@ -1,4 +1,4 @@
-docs
-====
+# ElfChat Documentation
 
-ElfChat Documentation
+* [English](/en)
+* [Russian](/ru)
