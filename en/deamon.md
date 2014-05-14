@@ -1,10 +1,17 @@
+# ElfChat Deamon
+If you have UNLIM version of ElfChat, you can use WebSocket version. To do this you need to go to ElfChat Admin configuration and select *Server Type*: `WebSocket Server`. 
+Now you need to start daemon. Go to your server using the SSH and run following command:
+```
+$ php ~/chat/app/server.php 
+```
 
+Now deamon is running.
 
-# Demon Deployment
-You've built your application and are ready to deploy it live! This tutorial will give you recommendations on what you should do to setup your production environment to run a WebSocket server. None of these are required, but recommended. Please note this page serves as an introduction and boilerplate setup for each technoloogy; each topic has wealths of more detailed resources available.
+## Deployment
+This tutorial will give you recommendations on what you should do to setup your production environment to run a WebSocket server. None of these are required, but recommended. Please note this page serves as an introduction and boilerplate setup for each technoloogy; each topic has wealths of more detailed resources available.
 
 ## ulimit
-Before you run your shell script (your WebSocket application) you should probably update your ulimit. What is this? It's a unix security feature that limits the number of open file descriptors one running process can have open at a time. We want to increase this as each client connecting to your server opens a file descriptor. You should update this number to make sure the number of clients you expect never exceeds your ulimit. Remember, when you update your ulimit, that change only affects the current shell session. Before you run you application make sure to execute this command:
+Before you run command you should probably update your ulimit. What is this? It's a unix security feature that limits the number of open file descriptors one running process can have open at a time. We want to increase this as each client connecting to your server opens a file descriptor. You should update this number to make sure the number of clients you expect never exceeds your ulimit. Remember, when you update your ulimit, that change only affects the current shell session. Before you run you application make sure to execute this command:
 ```
 $ ulimit -n 10000
 ```
@@ -15,7 +22,7 @@ Libevent is an asynchronous event driven C library that is meant to replace defa
 $ sudo apt-get install libevent libevent-dev
 $ sudo pecl install libevent
 ```
-The event loop that PHP uses by default through stream_select uses the old, slow poll mechanism. By using Libevent PHP will use the faster epoll or kqueue, drastically improving concurrency (handling many connections quickly). Once Libevent is installed you don't need to change anything in your script. Ratchet's IoServer::factory will automatically use Libevent if it's available.
+The event loop that PHP uses by default through stream_select uses the old, slow poll mechanism. By using Libevent PHP will use the faster epoll or kqueue, drastically improving concurrency (handling many connections quickly). Once Libevent is installed you don't need to change anything in your script. ElfChat will automatically use Libevent if it's available.
 
 ## XDebug
 Disable the XDebug extension. Make sure it is commented out of your php.ini file. XDebug is fantastic for development, but destroys performance in production.
@@ -89,11 +96,11 @@ $ sudo haproxy -f /etc/haproxy.cfg -p /var/run/haproxy.pid -D
 ```
 
 ## Supervisor
-When running Ratchet in production it's highly recommended launching it from suporvisord. Suporvisor is a daemon that launches other processes and ensures they stay running. If for any reason your long running Ratchet application halted the supervisor daemon would ensure it starts back up immediately. Supervisor can be installed with any of the following tools: pip, easy_install, apt-get, yum. Once supervisor is installed you generate a template file with the following command:
+When running ElfChat in production it's highly recommended launching it from suporvisord. Suporvisor is a daemon that launches other processes and ensures they stay running. If for any reason your long running ElfChat application halted the supervisor daemon would ensure it starts back up immediately. Supervisor can be installed with any of the following tools: pip, easy_install, apt-get, yum. Once supervisor is installed you generate a template file with the following command:
 ```
 $ echo_supervisord_conf > supervisor.conf
 ```
-The following is a modification from the generated supervisor.conf file to run a Ratchet application from the "Hello World" tutorial:
+The following is a modification from the generated supervisor.conf file to run a ElfChat Demon:
 ```
 [unix_http_server]
 file = /tmp/supervisor.sock
@@ -114,9 +121,9 @@ supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 [supervisorctl]
 serverurl = unix:///tmp/supervisor.sock
 
-[program:ratchet]
-command                 = bash -c "ulimit -n 10000 && /usr/bin/php ./bin/tutorial-terminal-chat.php"
-process_name            = Ratchet
+[program:elfchat]
+command                 = bash -c "ulimit -n 10000 && /usr/bin/php ~/chat/app/server.php"
+process_name            = ElfChat
 numprocs                = 1
 autostart               = true
 autorestart             = true
