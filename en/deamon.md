@@ -138,7 +138,7 @@ If you're only going to user supervisor to run your WebSocket application you ca
 $ sudo supervisord -c supervisor.conf
 ```
 ## Links
-[LibEvent](http://libevent.org/)
-[Libevent PHP extension](http://pecl.php.net/package/libevent)
-[HAProxy Configuration Manual v1.5](http://haproxy.1wt.eu/download/1.5/doc/configuration.txt)
-[Supervisor Configuration](http://supervisord.org/configuration.html)
+* [LibEvent](http://libevent.org/)
+* [Libevent PHP extension](http://pecl.php.net/package/libevent)
+* [HAProxy Configuration Manual v1.5](http://haproxy.1wt.eu/download/1.5/doc/configuration.txt)
+* [Supervisor Configuration](http://supervisord.org/configuration.html)
