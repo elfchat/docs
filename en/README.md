@@ -1,2 +1,2 @@
 * [Installation](installation.md)
-* [WebSocket](deamon.md)
+* [WebSocket Server](deamon.md)
