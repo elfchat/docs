@@ -1,4 +1,4 @@
-# ElfChat Deamon
+# WebSocket Server
 If you have UNLIM version of ElfChat, you can use WebSocket version. To do this you need to go to ElfChat Admin configuration and select *Server Type*: `WebSocket Server`. 
 Now you need to start daemon. Go to your server using the SSH and run following command:
 ```
