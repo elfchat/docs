@@ -39,7 +39,7 @@ Given these issues with WebSockets we have three choices on how to architect:
 * Run your WebSocket server on its own server on port 80 under a subdomain (sock.example.com)
 * Put a reverse proxy (HAProxy or Varnish) in front of your webserver and WebSocket server
 
-The first two options are fairly easy with the second being a decent option if you can afford a second server. This article will detail the third option and show you how to configure your network, specifically HAProxy, to run your web and WebSocket servers on the same machine. We've chosen to demonstrate HAProxy because it can also handle SSL (in v1.5) where Varnish can not. The goal is to setup the architecutre like the diagram below.
+The first two options are fairly easy with the second being a decent option if you can afford a second server. This article will detail the third option and show you how to configure your network, specifically HAProxy, to run your web and WebSocket servers on the same machine. We've chosen to demonstrate HAProxy because it can also handle SSL (in v1.5) where Varnish can not.
 
 
 
