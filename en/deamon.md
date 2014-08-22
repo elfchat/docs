@@ -37,108 +37,64 @@ Given these issues with WebSockets we have three choices on how to architect:
 
 * Run your website and WebSocket server on the same machine using port 8080 for WebSockets and take the chance client proxies won't block traffic
 * Run your WebSocket server on its own server on port 80 under a subdomain (sock.example.com)
-* Put a reverse proxy (HAProxy or Varnish) in front of your webserver and WebSocket server
+* Put a reverse proxy (Nginx) in front of your webserver and WebSocket server
 
-The first two options are fairly easy with the second being a decent option if you can afford a second server. This article will detail the third option and show you how to configure your network, specifically HAProxy, to run your web and WebSocket servers on the same machine. We've chosen to demonstrate HAProxy because it can also handle SSL (in v1.5) where Varnish can not.
+The first two options are fairly easy with the second being a decent option if you can afford a second server. 
 
-
-
-As of this writing, HAProxy support for WebSockets (via tunnel mode) (and SSL) is in the unstable branch, so we'll have to install it from source:
+### Nginx Proxy Configuration
 
 ```
-wget http://haproxy.1wt.eu/download/1.5/src/devel/haproxy-1.5-dev17.tar.gz
-tar -zxvf haproxy-1.5-dev17.tar.gz
-cd haproxy-1.5-dev17
-make install
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+server {
+    listen   80;
+
+    ...
+
+    location /server/ {
+        proxy_pass http://localhost:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+    }
+
+    ...
+}
+        
 ```
 
-The default installation should be in `/usr/local/sbin/haproxy`. The next step is to configure it. Below is a sample configuration:
+And start ElfChat demon on 8080 port.
 
-```
-global
-	log	127.0.0.1	local0
-	maxconn	10000
-	user	haproxy
-	group	haproxy
-	daemon
-
-defaults
-	mode			http
-	log			global
-	option			httplog
-	retries			3
-	backlog			10000
-	timeout	client		30s
-	timeout	connect		30s
-	timeout	server		30s
-	timeout	tunnel		3600s
-	timeout	http-keep-alive	1s
-	timeout	http-request	15s
-
-frontend public
-	bind		*:80
-	acl		is_websocket hdr(Upgrade) -i WebSocket
-	use_backend	ws if is_websocket #is_websocket_server
-	default_backend	www
-
-backend ws
-	server	ws1	127.0.0.1:1337
-
-backend www
-	timeout	server	30s
-	server	www1	127.0.0.1:1338
-```
-
-Save this file, `/etc/haproxy.cfg` for example. You'll notice we set the user an group to haproxy; you'll need to create these or update your configuration to use a different user/group combo. Note the important parts above begin at "frontend public". We're telling HAProxy to listen on port 80 and if we find an HTTP header with the "Upgrade: WebSocket" direct it to our WebSocket application running on port 1337 and all other traffic to port 1338 running our traditional web stack (Nginx or Apache). Finally, run HAProxy:
-
-```
-$ sudo haproxy -f /etc/haproxy.cfg -p /var/run/haproxy.pid -D
-```
 
 ## Supervisor
-When running ElfChat in production it's highly recommended launching it from suporvisord. Suporvisor is a daemon that launches other processes and ensures they stay running. If for any reason your long running ElfChat application halted the supervisor daemon would ensure it starts back up immediately. Supervisor can be installed with any of the following tools: pip, easy_install, apt-get, yum. Once supervisor is installed you generate a template file with the following command:
+When running ElfChat in production it's highly recommended launching it from suporvisord. Suporvisor is a daemon that launches other processes and ensures they stay running. If for any reason your long running ElfChat application halted the supervisor daemon would ensure it starts back up immediately. Supervisor can be installed with any of the following tools: pip, easy_install, apt-get, yum. 
+
+Create `/etc/supervisor/conf.d/elfchat.conf ` file:
+
 ```
-$ echo_supervisord_conf > supervisor.conf
-```
-The following is a modification from the generated supervisor.conf file to run a ElfChat Demon:
-```
-[unix_http_server]
-file = /tmp/supervisor.sock
-
-[supervisord]
-logfile          = ./logs/supervisord.log
-logfile_maxbytes = 50MB
-logfile_backups  = 10
-loglevel         = info
-pidfile          = /tmp/supervisord.pid
-nodaemon         = false
-minfds           = 1024
-minprocs         = 200
-
-[rpcinterface:supervisor]
-supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
-
-[supervisorctl]
-serverurl = unix:///tmp/supervisor.sock
-
 [program:elfchat]
-command                 = bash -c "ulimit -n 10000 && /usr/bin/php ~/chat/app/server.php"
+command                 = bash -c "ulimit -n 10000 && /usr/bin/php /home/chat/app/server.php --host=localhost --port=8080 --path=/server/"
 process_name            = ElfChat
 numprocs                = 1
 autostart               = true
 autorestart             = true
-user                    = root
-stdout_logfile          = ./logs/info.log
+user                    = elfet
+stdout_logfile          = /home/chat/app/open/out.log
 stdout_logfile_maxbytes = 1MB
-stderr_logfile          = ./logs/error.log
+stderr_logfile          = /home/chat/app/open/err.log
 stderr_logfile_maxbytes = 1MB
 ```
+
 If you're only going to user supervisor to run your WebSocket application you can now run it with the command:
+
 ```
-$ sudo supervisord -c supervisor.conf
+$ sudo supervisorctl restart
 ```
+
 ## Links
 * [LibEvent](http://libevent.org/)
 * [Libevent PHP extension](http://pecl.php.net/package/libevent)
-* [HAProxy Configuration Manual v1.5](http://haproxy.1wt.eu/download/1.5/doc/configuration.txt)
 * [Supervisor Configuration](http://supervisord.org/configuration.html)
