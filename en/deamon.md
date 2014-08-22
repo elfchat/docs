@@ -85,14 +85,14 @@ process_name            = ElfChat
 numprocs                = 1
 autostart               = true
 autorestart             = true
-user                    = elfet
+user                    = USER
 stdout_logfile          = /home/chat/app/open/out.log
 stdout_logfile_maxbytes = 1MB
 stderr_logfile          = /home/chat/app/open/err.log
 stderr_logfile_maxbytes = 1MB
 ```
 
-If you're only going to user supervisor to run your WebSocket application you can now run it with the command:
+Restart supervisor:
 
 ```
 $ sudo supervisorctl restart
