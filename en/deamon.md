@@ -2,7 +2,7 @@
 If you have UNLIM version of ElfChat, you can use WebSocket version. To do this you need to go to ElfChat Admin configuration and select *Server Type*: `WebSocket Server`. 
 Now you need to start daemon. Go to your server using the SSH and run following command:
 ```
-$ php ~/chat/app/server.php 
+$ php app/server.php 
 ```
 
 Now deamon is running.
@@ -66,7 +66,11 @@ server {
         
 ```
 
-And start ElfChat demon on 8080 port.
+And start ElfChat demon on 8080 port:
+
+```
+$ php app/server.php --host=localhost --port=8080 --path=/server/
+```
 
 
 ## Supervisor
