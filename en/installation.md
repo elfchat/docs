@@ -7,6 +7,12 @@ Now we need to check that folders `app/open`, `upload` were available for writin
 
 > Usually these folders give write permission 777 : `chmod-R 777 app/open upload`
 
+## Dependencies
+Install dependencies with Composer:
+```
+composer install
+```
+
 ## Configuration
 
 Open chat in browser (for example : `http://domain.com/chat/`) and you will be taken to a page that verify requirements of chat (`http://domain.com/chat/web/check.php`).
